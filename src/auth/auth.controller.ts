@@ -31,14 +31,8 @@ export class AuthController {
 
   @Post('signin')
   async signIn(@Body() signInDto: SignInDto, @Res() res: Response) {
-    const { access_token, userInfo, menuList } =
-      await this.authService.signIn(signInDto);
-    res.cookie('jwt', access_token, {
-      httpOnly: true,
-      secure: true, // HTTPS를 사용하므로 true로 설정
-      sameSite: 'none', // 크로스 사이트 요청 허용
-    });
-    res.status(HttpStatus.OK).json({ userInfo, menuList });
+    const result = await this.authService.signIn(signInDto);
+    res.status(HttpStatus.OK).json(result);
   }
 
   @UseGuards(JwtAuthGuard)
