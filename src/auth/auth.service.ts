@@ -134,19 +134,14 @@ export class AuthService {
   }
 
   async remove(pid: string) {
-    const userInfoWithUser = await this.userInfoRepository.findOne({
+    const userInfo = await this.userInfoRepository.findOne({
       where: { pid },
-      select: {
-        user: {
-          pid: true,
-        },
-      },
       relations: ['user'],
     });
-    const userPID = userInfoWithUser?.user?.pid;
-    if (userPID) {
-      await this.userInfoRepository.delete(pid);
-      await this.userRepository.delete(userPID);
+
+    if (userInfo?.user) {
+      // User만 삭제하면 UserInfo의 user_pid는 자동으로 null이 됩니다
+      await this.userRepository.delete(userInfo.user.pid);
     }
   }
 

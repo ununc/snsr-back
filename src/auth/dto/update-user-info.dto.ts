@@ -22,6 +22,10 @@ export class UpdateUserInfoDto {
   @IsOptional()
   phone?: string;
 
+  @IsString()
+  @IsOptional()
+  profile_image: string;
+
   @IsDateString()
   @IsOptional()
   birth?: Date;

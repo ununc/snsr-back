@@ -23,6 +23,10 @@ export class SignUpDto {
   email: string;
 
   @IsString()
+  @IsOptional()
+  profile_image: string;
+
+  @IsString()
   phone: string;
 
   @IsDateString()

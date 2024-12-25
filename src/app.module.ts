@@ -9,6 +9,7 @@ import { JwtAuthExceptionFilter } from './jwt-auth-exception.filter';
 import { CalendarModule } from './calender/calendar.module';
 import { MinioModule } from './minio/minio.module';
 import { WebPushModule } from './web-push/web-push.module';
+import { BoardModule } from './board/board.module';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { WebPushModule } from './web-push/web-push.module';
     MenuModule,
     CalendarModule,
     WebPushModule,
+    BoardModule,
   ],
   providers: [
     {

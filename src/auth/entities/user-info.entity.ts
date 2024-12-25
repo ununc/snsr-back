@@ -16,6 +16,9 @@ export class UserInfo {
   name: string;
 
   @Column({ nullable: true })
+  profile_image?: string;
+
+  @Column({ nullable: true })
   email?: string;
 
   @Column()
@@ -36,7 +39,12 @@ export class UserInfo {
   @Column('simple-array')
   role_list: string[];
 
-  @OneToOne(() => User, (user) => user.userInfo)
-  @JoinColumn({ name: 'user_pid' })
+  @OneToOne(() => User, (user) => user.userInfo, {
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn({
+    name: 'user_pid',
+    foreignKeyConstraintName: 'fk_user_info_user',
+  })
   user: User;
 }

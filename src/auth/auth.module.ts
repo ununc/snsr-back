@@ -11,6 +11,7 @@ import { ConfigService } from '@nestjs/config';
 import { MenuModule } from 'src/menu/menu.module';
 import { Menu } from 'src/menu/entities/menu.entity';
 import { Group } from 'src/group/entities/group.entity';
+import { JwtAuthGuard } from './jwt-auth.guard';
 
 @Module({
   imports: [
@@ -32,6 +33,7 @@ import { Group } from 'src/group/entities/group.entity';
     MenuModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy],
+  providers: [AuthService, JwtStrategy, JwtAuthGuard],
+  exports: [JwtStrategy, JwtAuthGuard],
 })
 export class AuthModule {}
