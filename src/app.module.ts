@@ -10,6 +10,9 @@ import { CalendarModule } from './calender/calendar.module';
 import { MinioModule } from './minio/minio.module';
 import { WebPushModule } from './web-push/web-push.module';
 import { BoardModule } from './board/board.module';
+import { SarangBangModule } from './sarangbang/sarangbang.module';
+import { AttendanceModule } from './attendance/attendance.module';
+import { SongformModule } from './songform/songform.module';
 
 @Module({
   imports: [
@@ -43,6 +46,9 @@ import { BoardModule } from './board/board.module';
     CalendarModule,
     WebPushModule,
     BoardModule,
+    SarangBangModule,
+    AttendanceModule,
+    SongformModule,
   ],
   providers: [
     {
