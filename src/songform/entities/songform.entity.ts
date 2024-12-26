@@ -6,15 +6,9 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
-@Entity()
-export class SongItem {
-  @Column()
+interface SongItem {
   url: string;
-
-  @Column('text')
   lyricOrder: string;
-
-  @Column()
   imageName: string;
 }
 
