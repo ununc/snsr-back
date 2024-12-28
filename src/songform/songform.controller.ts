@@ -12,6 +12,12 @@ import { SongformService } from './songform.service';
 import { CreateSongformDto } from './dto/create-songform.dto';
 import { UpdateSongformDto } from './dto/update-songform.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { Songform } from './entities/songform.entity';
+
+export interface SongItemWithNames extends Songform {
+  creatorName: string;
+  updaterName: string;
+}
 
 @UseGuards(JwtAuthGuard)
 @Controller('songform')
@@ -29,8 +35,16 @@ export class SongformController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id') id: string): Promise<SongItemWithNames> {
     return this.songformService.findOne(id);
+  }
+
+  @Get(':kind/:yearMonth')
+  findMonth(
+    @Param('kind') kind: string,
+    @Param('yearMonth') yearMonth: string,
+  ) {
+    return this.songformService.findByMonth(kind === 'true', yearMonth);
   }
 
   @Patch(':id')

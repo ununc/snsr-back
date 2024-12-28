@@ -10,6 +10,7 @@ interface SongItem {
   url: string;
   lyricOrder: string;
   imageName: string;
+  title: string;
 }
 
 @Entity()
@@ -18,7 +19,7 @@ export class Songform {
   id: string;
 
   @Column()
-  title: string;
+  kind: boolean;
 
   @Column('text')
   describe: string;

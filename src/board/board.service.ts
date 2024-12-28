@@ -9,12 +9,15 @@ import { Board } from './entities/board.entity';
 import { CreateBoardDto } from './dto/create-board.dto';
 import { UpdateBoardDto } from './dto/update-board.dto';
 import { BoardResponseDto } from './dto/board-response.dto';
+import { UserInfo } from 'src/auth/entities/user-info.entity';
 
 @Injectable()
 export class BoardService {
   constructor(
     @InjectRepository(Board)
     private readonly boardRepository: Repository<Board>,
+    @InjectRepository(UserInfo)
+    private readonly userInfoRepository: Repository<UserInfo>,
   ) {}
 
   async create(createBoardDto: CreateBoardDto): Promise<BoardResponseDto> {
@@ -25,10 +28,24 @@ export class BoardService {
 
   async findAll(boardId: string): Promise<BoardResponseDto[]> {
     const boards = await this.boardRepository.find({
+      select: ['id', 'title', 'createdAt', 'authorId', 'isTemplate'],
       where: { boardId },
       order: { createdAt: 'DESC' },
     });
-    return boards.map((board) => this.toResponseDto(board));
+
+    const enrichedBoards = await Promise.all(
+      boards.map(async (board) => {
+        const userInfo = await this.userInfoRepository.findOne({
+          where: { pid: board.authorId },
+        });
+
+        return {
+          ...board,
+          authorName: userInfo?.name || null,
+        };
+      }),
+    );
+    return enrichedBoards;
   }
 
   async findOne(id: string): Promise<BoardResponseDto> {
@@ -39,7 +56,17 @@ export class BoardService {
     if (!board) {
       throw new NotFoundException('게시물을 찾을 수 없습니다.');
     }
-    return this.toResponseDto(board);
+
+    const userInfo = await this.userInfoRepository.findOne({
+      where: { pid: board.authorId },
+    });
+
+    const result = {
+      ...board,
+      authorName: userInfo?.name || null,
+    };
+
+    return result;
   }
 
   async update(

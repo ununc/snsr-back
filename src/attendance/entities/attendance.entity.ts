@@ -35,6 +35,9 @@ export class Attendance {
   leaderPid: string;
 
   @Column()
+  daechung: boolean;
+
+  @Column()
   lifeSharing: string;
 
   @Column()

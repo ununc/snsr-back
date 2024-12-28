@@ -23,18 +23,34 @@ export class AttendanceController {
     return this.attendanceService.create(createAttendanceDto);
   }
 
+  @Post('bulk')
+  createBulk(@Body() createAttendanceDtos: CreateAttendanceDto[]) {
+    return this.attendanceService.createBulk(createAttendanceDtos);
+  }
+
   @Get()
   findAll() {
     return this.attendanceService.findAll();
   }
 
-  @Get('search/:date/:leaderPid')
+  @Get('search/:daechung/:date')
+  findByDate(@Param('daechung') daechung: string, @Param('date') date: string) {
+    const attendanceDate = new Date(date);
+    return this.attendanceService.findByDate(
+      daechung === 'true',
+      attendanceDate,
+    );
+  }
+
+  @Get('search/:daechung/:date/:leaderPid')
   findByDateAndLeader(
+    @Param('daechung') daechung: string,
     @Param('date') date: string,
     @Param('leaderPid') leaderPid: string,
   ) {
     const attendanceDate = new Date(date);
     return this.attendanceService.findByDateAndLeader(
+      daechung === 'true',
       attendanceDate,
       leaderPid,
     );
@@ -45,12 +61,9 @@ export class AttendanceController {
     return this.attendanceService.findOne(id);
   }
 
-  @Patch(':id')
-  update(
-    @Param('id') id: string,
-    @Body() updateAttendanceDto: UpdateAttendanceDto,
-  ) {
-    return this.attendanceService.update(id, updateAttendanceDto);
+  @Patch()
+  update(@Body() updateDtos: UpdateAttendanceDto[]) {
+    return this.attendanceService.updateMultiple(updateDtos);
   }
 
   @Delete(':id')

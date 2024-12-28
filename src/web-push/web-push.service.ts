@@ -132,39 +132,50 @@ export class PushService {
   }
 
   async sendNotificationToAll(dto: SendPushNotificationDto) {
-    // 모든 구독 정보 조회
     const allSubscriptions = await this.pushSubscriptionRepository.find();
+    const results = {
+      successCount: 0,
+      failureCount: 0,
+      errors: [] as Array<{ subscriptionId: number; error: string }>,
+    };
 
-    let successCount = 0;
-    let failureCount = 0;
+    await Promise.all(
+      allSubscriptions.map(async (subscription) => {
+        try {
+          // keys는 이미 객체 형태로 제공됨
+          await webpush.sendNotification(
+            {
+              endpoint: subscription.endpoint,
+              keys: subscription.keys, // 직접 사용 가능
+            },
+            JSON.stringify({
+              title: dto.title,
+              body: dto.body,
+              icon: dto.icon,
+              data: dto.data,
+            }),
+          );
+          results.successCount++;
+        } catch (error) {
+          results.failureCount++;
+          results.errors.push({
+            subscriptionId: subscription.id,
+            error: error.message,
+          });
 
-    const payload = JSON.stringify({
-      title: dto.title,
-      body: dto.body,
-      icon: dto.icon,
-      data: dto.data,
-    });
-    const notifications = allSubscriptions.map(async (subscription) => {
-      try {
-        await webpush.sendNotification(
-          {
-            endpoint: subscription.endpoint,
-            keys: subscription.keys,
-          },
-          payload,
-        );
-        successCount++;
-      } catch (error) {
-        failureCount++;
-        if (error.statusCode === 410 || error.statusCode === 404) {
-          // 구독이 만료되었거나 더 이상 유효하지 않은 경우 삭제
-          await this.pushSubscriptionRepository.delete(subscription.id);
+          if (error.statusCode === 410 || error.statusCode === 404) {
+            // 구독 만료 처리
+            await this.pushSubscriptionRepository.delete(subscription.id);
+            // 로깅 추가
+            console.error(
+              `Subscription ${subscription.id} for user ${subscription.userId} was deleted due to ${error.statusCode}`,
+            );
+          }
         }
-      }
-    });
+      }),
+    );
 
-    await Promise.all(notifications);
-    return { successCount, failureCount };
+    return results;
   }
 
   async getSubscriptions(userId: string): Promise<SubscriptionResponseDto[]> {

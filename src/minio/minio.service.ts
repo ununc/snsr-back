@@ -43,7 +43,7 @@ export class MinioService {
   // 파일 업로드를 위한 presigned URL 생성
   async generateUploadUrl(
     objectName: string,
-    expiry: number = 60 * 60,
+    expiry: number = 6 * 60 * 60,
   ): Promise<string> {
     try {
       const presignedUrl = await this.minioClient.presignedPutObject(
@@ -61,7 +61,7 @@ export class MinioService {
   // 파일 다운로드를 위한 presigned URL 생성
   async generateDownloadUrl(
     objectName: string,
-    expiry: number = 60 * 60,
+    expiry: number = 12 * 60 * 60,
   ): Promise<string> {
     try {
       const presignedUrl = await this.minioClient.presignedGetObject(

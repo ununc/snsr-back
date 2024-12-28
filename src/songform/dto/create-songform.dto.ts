@@ -4,31 +4,26 @@ import {
   IsArray,
   IsNotEmpty,
   ValidateNested,
-  IsUrl,
+  IsBoolean,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class SongItemDto {
-  @IsUrl()
-  @IsNotEmpty()
+  @IsString()
   url: string;
 
   @IsString()
-  @IsNotEmpty()
   lyricOrder: string;
 
   @IsString()
-  @IsNotEmpty()
   imageName: string;
+
+  @IsString()
+  title: string;
 }
 
 export class CreateSongformDto {
   @IsString()
-  @IsNotEmpty()
-  title: string;
-
-  @IsString()
-  @IsNotEmpty()
   describe: string;
 
   @IsDate()
@@ -38,6 +33,9 @@ export class CreateSongformDto {
   @IsString()
   @IsNotEmpty()
   creatorPid: string;
+
+  @IsBoolean()
+  kind: boolean;
 
   @IsArray()
   @ValidateNested({ each: true })

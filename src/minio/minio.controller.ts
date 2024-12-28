@@ -50,7 +50,6 @@ export class MinioController {
   @Get('file/:objectName')
   async getDownloadUrl(@Param('objectName') objectName: string) {
     try {
-      console.log('called');
       const url = await this.minioService.generateDownloadUrl(objectName);
       return {
         url,
@@ -61,19 +60,7 @@ export class MinioController {
   }
 
   @Delete('file/:objectName')
-  async deleteFile(
-    @Body() body: DeleteFileDto,
-    @Param('objectName') objectName: string,
-  ) {
-    const { userId } = body;
-
-    // 파일 접근 권한 검증
-    if (!objectName.startsWith(`users/${userId}/`)) {
-      throw new UnauthorizedException(
-        'You do not have permission to delete this file',
-      );
-    }
-
+  async deleteFile(@Param('objectName') objectName: string) {
     try {
       const deleted = await this.minioService.deleteFile(objectName);
       if (!deleted) {
