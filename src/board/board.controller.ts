@@ -15,6 +15,7 @@ import { CreateBoardDto } from './dto/create-board.dto';
 import { UpdateBoardDto } from './dto/update-board.dto';
 import { BoardResponseDto } from './dto/board-response.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
+import { PaginationDto } from './dto/pagination.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('boards')
@@ -33,6 +34,21 @@ export class BoardController {
     @Query('boardId') boardId: string,
   ): Promise<BoardResponseDto[]> {
     return await this.boardService.findAll(boardId);
+  }
+
+  @Get('temp')
+  async findAllTemplate(
+    @Query('boardId') boardId: string,
+  ): Promise<BoardResponseDto[]> {
+    return await this.boardService.findAllTemplate(boardId);
+  }
+
+  @Get('split/:boardId')
+  async getBoards(
+    @Param('boardId') boardId: string,
+    @Query() paginationDto: PaginationDto,
+  ) {
+    return this.boardService.findByPagination(boardId, paginationDto);
   }
 
   @Get(':id')

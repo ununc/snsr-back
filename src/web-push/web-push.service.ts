@@ -26,7 +26,7 @@ export class PushService {
     }
 
     webpush.setVapidDetails(
-      `mailto:${process.env.VAPID_EMAIL}`,
+      'mailto:' + process.env.VAPID_EMAIL,
       process.env.VAPID_PUBLIC_KEY,
       process.env.VAPID_PRIVATE_KEY,
     );
@@ -39,7 +39,6 @@ export class PushService {
     const existingSubscription = await this.pushSubscriptionRepository.findOne({
       where: { endpoint: dto.endpoint },
     });
-
     if (existingSubscription) {
       if (existingSubscription.userId !== userId) {
         throw new BadRequestException(
@@ -76,7 +75,6 @@ export class PushService {
   ): Promise<{ successCount: number; failureCount: number }> {
     // 대상 유저 ID 목록을 저장할 Set (중복 제거)
     const targetUserIds = new Set<string>();
-
     // 그룹 ID가 제공된 경우 해당 그룹의 모든 유저 ID를 추가
     if (dto.groupIds && dto.groupIds.length > 0) {
       const groups = await this.groupRepository.findBy({
@@ -142,34 +140,61 @@ export class PushService {
     await Promise.all(
       allSubscriptions.map(async (subscription) => {
         try {
-          // keys는 이미 객체 형태로 제공됨
+          const isAppleDevice =
+            subscription.endpoint.includes('web.push.apple.com');
+
+          const payload = JSON.stringify({
+            title: dto.title,
+            body: dto.body,
+            icon: dto.icon,
+            badge: dto.badge || '/icons/apple-touch-icon.svg',
+            timestamp: Date.now(),
+            tag: dto.tag || 'default',
+            ...dto.data,
+          });
+
+          const options = {
+            TTL: 24 * 60 * 60,
+            urgency: 'normal',
+            headers: isAppleDevice
+              ? {
+                  'apns-push-type': 'alert',
+                  'apns-priority': '10',
+                  'apns-topic': `web.${new URL(process.env.APP_URL).host}`,
+                  'apns-expiration':
+                    Math.floor(Date.now() / 1000) + 24 * 60 * 60,
+                }
+              : undefined,
+          };
+
           await webpush.sendNotification(
             {
               endpoint: subscription.endpoint,
-              keys: subscription.keys, // 직접 사용 가능
+              keys: subscription.keys,
             },
-            JSON.stringify({
-              title: dto.title,
-              body: dto.body,
-              icon: dto.icon,
-              data: dto.data,
-            }),
+            payload,
+            options,
           );
+
           results.successCount++;
         } catch (error) {
+          console.error('Push notification failed:', {
+            endpoint: subscription.endpoint,
+            error: error.message,
+            statusCode: error.statusCode,
+            body: error.body,
+            subscription: subscription,
+          });
+
           results.failureCount++;
           results.errors.push({
             subscriptionId: subscription.id,
             error: error.message,
           });
 
+          // 구독이 더 이상 유효하지 않은 경우 삭제
           if (error.statusCode === 410 || error.statusCode === 404) {
-            // 구독 만료 처리
             await this.pushSubscriptionRepository.delete(subscription.id);
-            // 로깅 추가
-            console.error(
-              `Subscription ${subscription.id} for user ${subscription.userId} was deleted due to ${error.statusCode}`,
-            );
           }
         }
       }),

@@ -10,6 +10,7 @@ import { CreateBoardDto } from './dto/create-board.dto';
 import { UpdateBoardDto } from './dto/update-board.dto';
 import { BoardResponseDto } from './dto/board-response.dto';
 import { UserInfo } from 'src/auth/entities/user-info.entity';
+import { PaginatedBoardResponse, PaginationDto } from './dto/pagination.dto';
 
 @Injectable()
 export class BoardService {
@@ -46,6 +47,69 @@ export class BoardService {
       }),
     );
     return enrichedBoards;
+  }
+
+  async findAllTemplate(boardId: string): Promise<BoardResponseDto[]> {
+    const boards = await this.boardRepository.find({
+      select: ['id', 'title', 'createdAt', 'authorId'],
+      where: { boardId, isTemplate: true },
+      order: { createdAt: 'DESC' },
+    });
+
+    const enrichedBoards = await Promise.all(
+      boards.map(async (board) => {
+        const userInfo = await this.userInfoRepository.findOne({
+          where: { pid: board.authorId },
+        });
+
+        return {
+          ...board,
+          authorName: userInfo?.name || null,
+        };
+      }),
+    );
+    return enrichedBoards;
+  }
+
+  async findByPagination(
+    boardId: string,
+    paginationDto: PaginationDto,
+  ): Promise<PaginatedBoardResponse> {
+    console.log('ㅗ', paginationDto);
+    const { page = 1, limit = 10 } = paginationDto;
+    const skip = (page - 1) * limit;
+
+    const [boards, total] = await this.boardRepository.findAndCount({
+      select: ['id', 'title', 'createdAt', 'authorId'],
+      where: {
+        boardId,
+        isTemplate: false,
+      },
+      order: { createdAt: 'DESC' },
+      skip,
+      take: limit,
+    });
+
+    const enrichedBoards = await Promise.all(
+      boards.map(async (board) => {
+        const userInfo = await this.userInfoRepository.findOne({
+          where: { pid: board.authorId },
+        });
+
+        return {
+          ...board,
+          authorName: userInfo?.name || null,
+        };
+      }),
+    );
+
+    return {
+      items: enrichedBoards,
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    };
   }
 
   async findOne(id: string): Promise<BoardResponseDto> {
