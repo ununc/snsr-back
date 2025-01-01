@@ -70,8 +70,31 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
+    const userInfo = user.userInfo;
+    const { roleNames, menuList } = await this.getRoleMenuListSet(
+      userInfo.role_list,
+    );
+
+    const payload = { sub: user.pid, username: user.id };
+    return {
+      access_token: this.jwtService.sign(payload),
+      userInfo,
+      roleNames,
+      menuList,
+    };
+  }
+
+  async getNewRoleMenu(pid: string) {
+    const userInfo = await this.userInfoRepository.findOne({
+      where: { pid },
+    });
+
+    return await this.getRoleMenuListSet(userInfo.role_list);
+  }
+
+  async getRoleMenuListSet(role_list: string[]) {
     const groupList = await this.groupRepository.findBy({
-      id: In(user.userInfo.role_list),
+      id: In(role_list),
     });
 
     const allMenuIds = [];
@@ -85,13 +108,30 @@ export class AuthService {
     const menus = await this.menuRepository.findBy({
       id: In(uniqueMenuIds),
     });
-    user.userInfo.role_list = roleNames;
 
-    const payload = { sub: user.pid, username: user.id };
+    // description과 owner가 모두 있는 메뉴만 그룹화 및 권한 통합
+    const menuMap = new Map();
+
+    menus.forEach((menu) => {
+      if (!menu.owner) {
+        // owner가 없는 메뉴는 그대로 유지
+        menuMap.set(menu.id, menu);
+        return;
+      }
+
+      const key = `${menu.description}-${menu.owner}`;
+      const existingMenu = menuMap.get(key);
+
+      if (!existingMenu) {
+        menuMap.set(key, menu);
+      } else {
+        // 둘 중 하나라도 쓰기 권한이 있으면 true로 설정
+        existingMenu.can_write = existingMenu.can_write || menu.can_write;
+      }
+    });
     return {
-      access_token: this.jwtService.sign(payload),
-      userInfo: user.userInfo,
-      menuList: menus,
+      roleNames,
+      menuList: Array.from(menuMap.values()),
     };
   }
 

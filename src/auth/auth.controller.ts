@@ -35,6 +35,12 @@ export class AuthController {
     res.status(HttpStatus.OK).json(result);
   }
 
+  @Get('role-menu/:pid')
+  @UseGuards(JwtAuthGuard)
+  getNewRoleMenu(@Param('pid') pid: string) {
+    return this.authService.getNewRoleMenu(pid);
+  }
+
   @UseGuards(JwtAuthGuard)
   @Patch('change-password')
   changePassword(@Request() req, @Body() changePasswordDto: ChangePasswordDto) {
