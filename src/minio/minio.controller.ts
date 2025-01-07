@@ -11,12 +11,7 @@ import {
 } from '@nestjs/common';
 import { MinioService } from './minio.service';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-
-// DTO 클래스에 userId 필드 추가
-export class PresignedUrlDto {
-  fileName: string;
-  userId: string; // 사용자 ID를 body에서 받을 수 있도록 필드 추가
-}
+import { PresignedUrlDto } from './dto/presignedurl.dto';
 
 export class DeleteFileDto {
   userId: string;

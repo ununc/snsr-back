@@ -84,6 +84,24 @@ export class AuthService {
     };
   }
 
+  async resetPassword(id: string) {
+    // 비밀번호 암호화 (기존 회원가입에서 사용하는 것과 동일한 방식으로)
+    const hashedPassword = await bcrypt.hash('1234567', 10);
+
+    const user = await this.userRepository.findOne({ where: { id } });
+    if (!user) {
+      throw new NotFoundException('사용자를 찾을 수 없습니다.');
+    }
+
+    // 비밀번호 업데이트
+    user.password = hashedPassword;
+    await this.userRepository.save(user);
+
+    return {
+      message: '비밀번호가 성공적으로 초기화되었습니다.',
+    };
+  }
+
   async getNewRoleMenu(pid: string) {
     const userInfo = await this.userInfoRepository.findOne({
       where: { pid },

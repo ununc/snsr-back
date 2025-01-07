@@ -35,6 +35,11 @@ export class AuthController {
     res.status(HttpStatus.OK).json(result);
   }
 
+  @Patch('reset-password/:id')
+  async resetPassword(@Param('id') id: string) {
+    return this.authService.resetPassword(id);
+  }
+
   @Get('role-menu/:pid')
   @UseGuards(JwtAuthGuard)
   getNewRoleMenu(@Param('pid') pid: string) {
