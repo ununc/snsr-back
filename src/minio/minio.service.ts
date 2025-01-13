@@ -20,7 +20,7 @@ export class MinioService {
       secretKey: this.configService.get('minio.secretKey'),
       transportAgent: new https.Agent({
         rejectUnauthorized: false,
-        ca: fs.readFileSync('/app/ssl/root.crt'),
+        ca: fs.readFileSync('/app/crt/root.crt'),
       }),
     });
 
