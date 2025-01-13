@@ -13,6 +13,8 @@ import { BoardModule } from './board/board.module';
 import { SarangBangModule } from './sarangbang/sarangbang.module';
 import { AttendanceModule } from './attendance/attendance.module';
 import { SongformModule } from './songform/songform.module';
+import { ReplyModule } from './community-reply/community-reply.module';
+import { CommunitySpaceModule } from './community-space/community-space.module';
 
 @Module({
   imports: [
@@ -49,6 +51,8 @@ import { SongformModule } from './songform/songform.module';
     SarangBangModule,
     AttendanceModule,
     SongformModule,
+    CommunitySpaceModule,
+    ReplyModule,
   ],
   providers: [
     {
