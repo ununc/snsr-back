@@ -40,8 +40,6 @@ export class CreatePostDto {
         return CreateLiturgyDto;
       case PostType.PRAISE:
         return CreatePraiseDto;
-      case PostType.ANTHEM:
-        return CreatePraiseDto;
       case PostType.LITURGISTS:
         return CreateLiturgistsDto;
       case PostType.CONGREGATION:

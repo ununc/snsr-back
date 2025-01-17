@@ -2,7 +2,6 @@
 import {
   IsArray,
   IsBoolean,
-  IsDateString,
   IsNumber,
   IsOptional,
   IsString,
@@ -12,8 +11,8 @@ export class CreateNewcomerDto {
   @IsString()
   leader: string;
 
-  @IsString()
-  name: string;
+  // @IsString()
+  // name: string; 타이틀에 작성?
 
   // 99또래
   @IsNumber()
@@ -27,17 +26,28 @@ export class CreateNewcomerDto {
   @IsString()
   job?: string;
 
-  @IsNumber()
-  week: number;
-
   @IsBoolean()
   newComer: boolean;
+
+  @IsOptional()
+  @IsString()
+  churchName?: string;
+
+  @IsOptional()
+  @IsString()
+  objectName?: string;
+
+  // @IsDateString()
+  // registrationDate: string; targetDate?
 
   @IsBoolean()
   baptism: boolean;
 
-  @IsDateString()
-  registrationDate: string;
+  @IsBoolean()
+  pastorVisited: boolean;
+
+  @IsBoolean()
+  promotionEnd: boolean;
 
   @IsOptional()
   @IsString()

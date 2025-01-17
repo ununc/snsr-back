@@ -20,6 +20,9 @@ export class SongItem {
 
 export class CreatePraiseDto {
   @IsString()
+  kind: string;
+
+  @IsString()
   description: string;
 
   @IsArray()

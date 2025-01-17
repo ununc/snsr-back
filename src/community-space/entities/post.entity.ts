@@ -12,7 +12,6 @@ import {
 export enum PostType {
   LITURGY = 'liturgy', // liturgy
   PRAISE = 'praise', // 찬양
-  ANTHEM = 'anthem', // 특송
   LITURGISTS = 'liturgists', // 예배 위원회
   CONGREGATION = 'congregation', // 예배 인워
   ADVERTISEMENT = 'advertisement',
