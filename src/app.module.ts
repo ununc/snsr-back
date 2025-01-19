@@ -15,6 +15,7 @@ import { AttendanceModule } from './attendance/attendance.module';
 import { SongformModule } from './songform/songform.module';
 import { ReplyModule } from './community-reply/community-reply.module';
 import { CommunitySpaceModule } from './community-space/community-space.module';
+import { ScheduleModule } from './schedule/schedule.module';
 
 @Module({
   imports: [
@@ -53,6 +54,7 @@ import { CommunitySpaceModule } from './community-space/community-space.module';
     SongformModule,
     CommunitySpaceModule,
     ReplyModule,
+    ScheduleModule,
   ],
   providers: [
     {
