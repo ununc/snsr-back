@@ -1,4 +1,9 @@
-import { Injectable, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as Minio from 'minio';
 import * as https from 'https';
@@ -11,7 +16,6 @@ export class MinioService {
   private readonly bucket: string;
 
   constructor(private readonly configService: ConfigService) {
-    // MinIO 클라이언트 초기화
     this.minioClient = new Minio.Client({
       endPoint: this.configService.get('minio.endPoint'),
       port: this.configService.get('minio.port'),
@@ -43,58 +47,61 @@ export class MinioService {
     }
   }
 
-  // 파일 업로드를 위한 presigned URL 생성
-  async generateUploadUrl(
-    objectName: string,
-    expiry: number = 6 * 60 * 60,
-  ): Promise<string> {
+  async uploadFile(file: Express.Multer.File): Promise<void> {
+    const decodedFileName = decodeURIComponent(file.originalname);
+    await this.minioClient.putObject(
+      this.bucket,
+      decodedFileName,
+      file.buffer,
+      file.size,
+    );
+  }
+
+  async uploadFiles(files: Express.Multer.File[]): Promise<void> {
+    if (!files?.length) {
+      throw new BadRequestException('No files provided');
+    }
+
     try {
-      const presignedUrl = await this.minioClient.presignedPutObject(
-        this.bucket,
-        objectName,
-        expiry,
-      );
-      return presignedUrl;
+      const uploadPromises = files.map((file) => this.uploadFile(file));
+      await Promise.all(uploadPromises);
     } catch (error) {
-      this.logger.error(`Error generating presigned URL: ${error.message}`);
+      throw new InternalServerErrorException(
+        'Failed to upload one or more files',
+      );
+    }
+  }
+
+  async downloadFile(objectName: string): Promise<Buffer> {
+    try {
+      const stream = await this.minioClient.getObject(this.bucket, objectName);
+      return new Promise((resolve, reject) => {
+        const chunks: Buffer[] = [];
+        stream.on('data', (chunk) => chunks.push(chunk));
+        stream.on('end', () => resolve(Buffer.concat(chunks)));
+        stream.on('error', reject);
+      });
+    } catch (error) {
+      this.logger.error(`Error downloading file: ${error.message}`);
       throw error;
     }
   }
 
-  // 파일 다운로드를 위한 presigned URL 생성
-  async generateDownloadUrl(
-    objectName: string,
-    expiry: number = 12 * 60 * 60,
-  ): Promise<string> {
-    try {
-      const presignedUrl = await this.minioClient.presignedGetObject(
-        this.bucket,
-        objectName,
-        expiry,
-      );
-      return presignedUrl;
-    } catch (error) {
-      this.logger.error(`Error generating presigned URL: ${error.message}`);
-      throw error;
-    }
+  async downloadFiles(objectNames: string[]): Promise<Buffer[]> {
+    const downloadPromises = objectNames.map((objectName) =>
+      this.downloadFile(objectName),
+    );
+    return Promise.all(downloadPromises);
   }
 
   async deleteFile(objectName: string): Promise<boolean> {
     try {
-      // 파일이 실제로 존재하는지 먼저 확인
-      try {
-        await this.minioClient.statObject(this.bucket, objectName);
-      } catch (error) {
-        // statObject에서 에러가 발생하면 파일이 존재하지 않는 것
-        return false;
-      }
-
-      // 파일 삭제 실행
       await this.minioClient.removeObject(this.bucket, objectName);
-
       return true;
     } catch (error) {
-      console.error('Error deleting file:', error);
+      if (error.code === 'NotFound') {
+        return false;
+      }
       throw error;
     }
   }

@@ -6,13 +6,11 @@ import { MenuModule } from './menu/menu.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_FILTER } from '@nestjs/core';
 import { JwtAuthExceptionFilter } from './jwt-auth-exception.filter';
-import { CalendarModule } from './calender/calendar.module';
 import { MinioModule } from './minio/minio.module';
 import { WebPushModule } from './web-push/web-push.module';
 import { BoardModule } from './board/board.module';
 import { SarangBangModule } from './sarangbang/sarangbang.module';
 import { AttendanceModule } from './attendance/attendance.module';
-import { SongformModule } from './songform/songform.module';
 import { ReplyModule } from './community-reply/community-reply.module';
 import { CommunitySpaceModule } from './community-space/community-space.module';
 import { ScheduleModule } from './schedule/schedule.module';
@@ -46,12 +44,10 @@ import { ScheduleModule } from './schedule/schedule.module';
     GroupModule,
     MinioModule,
     MenuModule,
-    CalendarModule,
     WebPushModule,
     BoardModule,
     SarangBangModule,
     AttendanceModule,
-    SongformModule,
     CommunitySpaceModule,
     ReplyModule,
     ScheduleModule,
