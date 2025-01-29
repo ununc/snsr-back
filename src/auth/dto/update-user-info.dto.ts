@@ -27,8 +27,7 @@ export class UpdateUserInfoDto {
   profile_image: string;
 
   @IsDateString()
-  @IsOptional()
-  birth?: Date;
+  birth: string;
 
   @IsString()
   @IsOptional()
@@ -37,4 +36,8 @@ export class UpdateUserInfoDto {
   @IsBoolean()
   @IsOptional()
   daechung: boolean;
+
+  @IsBoolean()
+  @IsOptional()
+  gender: boolean;
 }

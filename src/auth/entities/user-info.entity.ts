@@ -22,9 +22,12 @@ export class UserInfo {
   email?: string;
 
   @Column()
-  phone: string;
+  gender: boolean;
 
   @Column()
+  phone: string;
+
+  @Column({ type: 'date', nullable: true })
   birth: Date;
 
   @Column()

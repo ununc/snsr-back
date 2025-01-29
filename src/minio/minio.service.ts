@@ -7,7 +7,6 @@ import {
 import { ConfigService } from '@nestjs/config';
 import * as Minio from 'minio';
 import * as https from 'https';
-import * as fs from 'fs';
 
 @Injectable()
 export class MinioService {
@@ -23,11 +22,7 @@ export class MinioService {
       accessKey: this.configService.get('minio.accessKey'),
       secretKey: this.configService.get('minio.secretKey'),
       transportAgent: new https.Agent({
-        rejectUnauthorized: true,
-        ca: [
-          fs.readFileSync('/app/crt/root.crt'),
-          fs.readFileSync('/app/crt/chain.crt'),
-        ],
+        rejectUnauthorized: false,
       }),
     });
 

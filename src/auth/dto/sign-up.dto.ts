@@ -37,4 +37,7 @@ export class SignUpDto {
 
   @IsBoolean()
   daechung: boolean;
+
+  @IsBoolean()
+  gender: boolean;
 }
