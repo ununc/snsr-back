@@ -24,20 +24,21 @@ export class UpdateUserInfoDto {
 
   @IsString()
   @IsOptional()
-  profile_image: string;
+  profile_image?: string;
 
   @IsDateString()
-  birth: string;
+  @IsOptional()
+  birth?: string;
 
   @IsString()
   @IsOptional()
-  sarang: string;
+  sarang?: string;
 
   @IsBoolean()
   @IsOptional()
-  daechung: boolean;
+  daechung?: boolean;
 
   @IsBoolean()
   @IsOptional()
-  gender: boolean;
+  gender?: boolean;
 }
